@@ -4,17 +4,66 @@ var prompt = require('prompt');
 var http = require('http');
 var fs = require('fs');
 var cv = require('opencv');
+var child = require('child_process');
+var path = require('path');
+var inspect = require('eyespect').inspector();
 
-prompt.start();
-
-var client  = arDrone.createClient();
-client.disableEmergency();
+var directory = "/Users/Max/Desktop/GitHub/MHacksV"; //get this programmatically later
 
 function print(string) {
     process.stdout.write(string.toString());
     process.stdout.write("\n");
 }
 
+function deleteOldPictures() {
+    var dir = directory + "/dronepics/";
+    var counter = 0;
+    while(fs.exists(dir + "tmppic_" + counter)) {
+        fs.unlink(dir + "tmppic_" + counter, function(err) {
+            if(err) 
+                console.log(err);
+            print("Successfully deleted: " + dir + "tmppic_" + counter);
+            counter++;
+        })
+    }
+}
+
+function executeFacialRecognition(filename) {
+
+    var cmd = path.join(__dirname, "faceRecognizer");
+    inspect(cmd, 'command to spawn');
+    var args = [filename];
+    var tracker = child.spawn(cmd, args, {
+        stdio: 'inherit' //pipe childs stdout to parent
+    });
+
+    //tracker.stdout.setEncoding('utf8');
+    //tracker.stderr.setEncoding('utf8');
+    /*tracker.stdout.on('data', function(data) {
+        inspect('stdout data');
+        console.log(data);
+        print(data);
+    });
+    tracker.stderr.on('data', function(data) {
+        inspect('stderr data');
+        console.log(data);
+        print(data);
+    });*/
+}
+
+deleteOldPictures();
+executeFacialRecognition("a");
+print("DONE!");
+
+process.exit();
+
+
+// Start getting user input to control drone
+
+prompt.start();
+
+var client  = arDrone.createClient();
+client.disableEmergency();
 
 //Allow user to control drone's flight
 process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
@@ -75,6 +124,31 @@ var detectFaces = function() {
         processingImage = true;
         print("Processing new image");
 
+
+        /*cv.readImage("jason.png", function(err, im) {
+            if(err) 
+                throw err;
+            if(im.width() < 1 || im.height < 1)
+                throw new Error("Incorrect image size");
+
+            im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
+                if(err)
+                    throw err;
+
+                for(var i = 0; i < faces.length; i++) {
+                    var face = faces[i];
+                    im.ellipse(face.x + face.width / 2, face.y + face.height / 2, face.width / 2, face.height / 2);
+                    filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
+                    im.save(filename);
+                    print("Saved image " + imgCounter);
+                    imgCounter = imgCounter + 1;
+                }
+            });
+        });*/
+
+
+
+
         cv.readImage(lastPng, function(err, im) {
             var opts = {};
             im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
@@ -99,10 +173,10 @@ var detectFaces = function() {
                     var centerY = im.width() * 0.5;
 
                     im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
-                    filename = "/Users/Max/Desktop/GitHub/MHacksV/tmppic_" + imgCounter + ".png";
+                    filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
                     im.save(filename);
                     print("Saved image " + imgCounter);
-                    imgCounter = imgCounter + 1;
+                    imgCounter++;
                 }
 
                 processingImage = false;
@@ -112,7 +186,7 @@ var detectFaces = function() {
     }
 }
 
-var faceProcessInterval = setInterval(detectFaces, 500);
+var faceProcessInterval = setInterval(detectFaces, 1000);
 
 
 
