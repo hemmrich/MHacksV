@@ -1,6 +1,5 @@
 var arDrone = require('ar-drone');
 var sleep = require('sleep');
-var prompt = require('prompt');
 var http = require('http');
 var fs = require('fs');
 var cv = require('opencv');
@@ -43,8 +42,6 @@ function executeFacialRecognition(filename) {
 }
 
 // Start getting user input to control drone
-prompt.start();
-
 var client  = arDrone.createClient();
 client.disableEmergency();
 
