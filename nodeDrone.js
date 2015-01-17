@@ -44,7 +44,6 @@ function executeFacialRecognition(filename) {
 }
 
 // Start getting user input to control drone
-
 var client  = arDrone.createClient();
 client.disableEmergency();
 
