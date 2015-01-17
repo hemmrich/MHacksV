@@ -173,7 +173,7 @@ class ARDrone(object):
         self.lock.release()
 
     def get_image(self):
-        _image = np.copy(self.image)
+        _image = numpy.copy(self.image)
         return _image
         
     def move(self,lr, fb, vv, va):
