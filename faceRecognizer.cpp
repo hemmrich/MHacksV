@@ -23,17 +23,6 @@ void init() {
         labels.push_back(1);
     }
 
-    /*images.push_back(imread(DIRECTORY + "training_pics/" + "jason1.png", CV_LOAD_IMAGE_GRAYSCALE));
-    images.push_back(imread(DIRECTORY + "training_pics/" + "jason2.png", CV_LOAD_IMAGE_GRAYSCALE));
-    images.push_back(imread(DIRECTORY + "training_pics/" + "jason3.png", CV_LOAD_IMAGE_GRAYSCALE));
-    images.push_back(imread(DIRECTORY + "training_pics/" + "jason4.png", CV_LOAD_IMAGE_GRAYSCALE));
-    images.push_back(imread(DIRECTORY + "training_pics/" + "jason5.png", CV_LOAD_IMAGE_GRAYSCALE));
-    labels.push_back(1);
-    labels.push_back(1);
-    labels.push_back(1);
-    labels.push_back(1);
-    labels.push_back(1);*/
-
     fr->train(images, labels); 
 }
 
@@ -41,6 +30,7 @@ bool foundFace(string filename) {
     Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
     int prediction = -1;
     double confidence = 0.0;
+    imshow("Preview", img);
 
     fr->predict(img, prediction, confidence);
 
@@ -55,13 +45,10 @@ bool foundFace(string filename) {
 
 int main(int argc, char** argv) {
 
-    //file.open(DIRECTORY + "cppOut.txt");
 
     init();
 
     string filename(argv[1]);
-    //file << filename << endl;
-    //file.close();
 
     bool found = foundFace(filename);
 

@@ -35,7 +35,8 @@ function executeFacialRecognition(filename) {
 
         if(result.indexOf("FOUND!") > -1) {
             print("FOUND FACE!!!!!");
-            process.exit();
+            client.stop();
+            client.land( function() { process.exit() });
         }
 
     });    
@@ -73,11 +74,11 @@ process.stdin.on('data', function (chunk) {
     }
     else if(chunk == "left") {
         print("Left");
-        client.left(0.5);
+        client.left(0.3);
     }
     else if(chunk == "right") {
         print("Right");
-        client.right(0.5);
+        client.right(0.3);
     }
     else if(chunk == "rotl") {
         print("Rotate left");
@@ -89,19 +90,19 @@ process.stdin.on('data', function (chunk) {
     }
     else if(chunk == "forward") {
         print("Forward");
-        client.front(0.5);
+        client.front(0.3);
     }
     else if(chunk == "backward") {
         print("Backward");
-        client.back(0.5);
+        client.back(0.3);
     }
     else if(chunk == "up") {
         print("Up");
-        client.up(0.5);
+        client.up(0.3);
     }
     else if(chunk == "down") {
         print("Down");
-        client.down(0.5);
+        client.down(0.3);
     }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
@@ -124,15 +125,14 @@ var processingImage = false;
 var detectFaces = function() {
     if(!processingImage && lastPng) {
         processingImage = true;
-        print("Processing new image");
 
         cv.readImage(lastPng, function(err, im) {
 
-            var opts = {};
+            var opts = {scale: 2};
             im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
                 var face, biggestFace;
 
-                print("Found " + faces.length + " faces");
+                //print("Found " + faces.length + " faces");
 
                 for(var i = 0; i < faces.length; i++) {
                     face = faces[i];
@@ -143,8 +143,8 @@ var detectFaces = function() {
                 if(biggestFace) {
                     face = biggestFace;
 
-                    var window = new cv.NamedWindow("Preview", "400x400");
-                    window.show(face);
+                    //var window = new cv.NamedWindow("Preview", "400x400");
+                    //window.show(face);
 
                     print(face.x + face.y + face.height + face.width + im.height() + im.width());
 
@@ -170,7 +170,7 @@ var detectFaces = function() {
     }
 }
 
-var faceProcessInterval = setInterval(detectFaces, 1000);
+var faceProcessInterval = setInterval(detectFaces, 1500);
 
 
 
