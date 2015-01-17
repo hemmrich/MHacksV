@@ -71,7 +71,6 @@ pngStream
 //Facial recognition
 var processingImage = false;
 var detectFaces = function() {
-    print("in detect faces");
     if(!processingImage && lastPng) {
         processingImage = true;
         print("Processing new image");
@@ -86,7 +85,7 @@ var detectFaces = function() {
                 for(var i = 0; i < faces.length; i++) {
                     face = faces[i];
                     if(!biggestFace || biggestFace.width < face.width)
-                        biggestFace = false;
+                        biggestFace = face;
                 }
 
                 if(biggestFace) {
@@ -98,6 +97,12 @@ var detectFaces = function() {
 
                     var centerX = im.width() * 0.5;
                     var centerY = im.width() * 0.5;
+
+                    im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
+                    filename = "/Users/Max/Desktop/GitHub/MHacksV/tmppic_" + imgCounter + ".png";
+                    im.save(filename);
+                    print("Saved image " + imgCounter);
+                    imgCounter = imgCounter + 1;
                 }
 
                 processingImage = false;
