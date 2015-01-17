@@ -31,6 +31,7 @@ import struct
 import sys
 import threading
 import multiprocessing
+import numpy
 
 import arnetwork
 
@@ -118,6 +119,7 @@ class ARDrone(object):
         """Toggle the drone's emergency state."""
         self.at(at_ref, False, True)
         self.at(at_ref, False, False)
+        self.at(at_ref, False, True)
 
     def trim(self):
         """Flat trim the drone."""
@@ -169,6 +171,10 @@ class ARDrone(object):
         self.ipc_thread.stop()
         self.ipc_thread.join()
         self.lock.release()
+
+    def get_image(self):
+        _image = np.copy(self.image)
+        return _image
         
     def move(self,lr, fb, vv, va):
         """Makes the drone move (translate/rotate).
