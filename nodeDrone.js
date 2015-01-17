@@ -6,9 +6,10 @@ var fs = require('fs');
 var cv = require('opencv');
 var child = require('child_process');
 var path = require('path');
-var inspect = require('eyespect').inspector();
 
 var directory = "/Users/Max/Desktop/GitHub/MHacksV"; //get this programmatically later
+var result = "";
+
 
 function print(string) {
     process.stdout.write(string.toString());
@@ -33,33 +34,31 @@ function executeFacialRecognition(filename) {
     var cmd = path.join(__dirname, "faceRecognizer");
     inspect(cmd, 'command to spawn');
     var args = [filename];
-    var tracker = child.spawn(cmd, args, {
-        stdio: 'inherit' //pipe childs stdout to parent
-    });
+    var tracker = child.spawn(cmd, args);
 
-    //tracker.stdout.setEncoding('utf8');
-    //tracker.stderr.setEncoding('utf8');
-    /*tracker.stdout.on('data', function(data) {
-        inspect('stdout data');
-        console.log(data);
-        print(data);
+    tracker.stdout.setEncoding('utf8');
+    tracker.stderr.setEncoding('utf8');
+    tracker.stdout.on('data', function(data) {
+        result += data.toString();
     });
     tracker.stderr.on('data', function(data) {
-        inspect('stderr data');
-        console.log(data);
-        print(data);
-    });*/
+        result += data.toString();
+    });
+    tracker.on('close', function(code) {
+        print(result);
+
+        if(result.indexOf("FOUND!") > -1) {
+            print("FOUND FACE!!!!!");
+            process.exit();
+        }
+
+    });    
 }
 
+//clean up pictures from previous run
 deleteOldPictures();
-executeFacialRecognition("a");
-print("DONE!");
-
-process.exit();
-
 
 // Start getting user input to control drone
-
 prompt.start();
 
 var client  = arDrone.createClient();
@@ -101,20 +100,7 @@ pngStream
     .on('error', console.log)
     .on('data', function(pngBuffer) {
         lastPng = pngBuffer;
-        //detectFaces();
-
-        /*filename = "/Users/Max/Desktop/GitHub/MHacksV/tmppic_" + imgCounter + ".png";
-        //imgCounter = imgCounter + 1;
-
-        fs.writeFile(filename, lastPng, function(err) {
-            if(err) {
-                console.log(err);
-            } else {
-                console.log("The file was saved!");
-            }
-        }); */
     });
-
 
 
 //Facial recognition
@@ -175,8 +161,10 @@ var detectFaces = function() {
                     im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
                     filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
                     im.save(filename);
-                    print("Saved image " + imgCounter);
+                    print("Saved image " + filename);
                     imgCounter++;
+
+                    executeFacialRecognition(filename);
                 }
 
                 processingImage = false;
