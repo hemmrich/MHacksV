@@ -49,6 +49,7 @@ client.disableEmergency();
 
 //FLAGS
 var setHeight = false;
+var viewLog = false;
 
 //DESIRED VALUES
 var desiredHeight = 1.6;
@@ -66,8 +67,10 @@ process.stdin.on('data', function (chunk) {
 
     if(chunk === "t") {
         print("Taking off!");
-        client.takeoff();
-        setHeight = true;
+        client.takeoff(function(){
+          print("I Took Off");
+          setHeight = true;
+        });
     }
     else if(chunk === "l") {
         print("Landing...");
@@ -118,11 +121,16 @@ process.stdin.on('data', function (chunk) {
         print("Down");
         client.down(0.3);
     }
+    else if(chunk == "log") {
+      print("Toggling log");
+      if(viewLog) viewLog = false;
+      else viewLog = true;
+    }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
 
 client.on('navdata', function(data){
-  //console.log(data);
+  if(viewLog) console.log(data);
 
   //Hovering at desired height
   if(setHeight){
@@ -142,6 +150,7 @@ client.on('navdata', function(data){
   }
 
 });
+
 
 //Save images from AR Drone's front facing camera
 var pngStream = client.getPngStream();
