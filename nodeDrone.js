@@ -1,12 +1,12 @@
 var arDrone = require('ar-drone');
 var sleep = require('sleep');
-var prompt = require('prompt');
+//var prompt = require('prompt');
 var http = require('http');
 var fs = require('fs');
 var cv = require('opencv');
 var keypress = require('keypress');
 
-prompt.start();
+//prompt.start();
 
 var client  = arDrone.createClient();
 client.disableEmergency();
@@ -16,63 +16,72 @@ function print(string) {
     process.stdout.write("\n");
 }
 
+//makes react immediately to button press
+//process.stdin.setRawMode(true);
 
-process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
+keypress(process.stdin);
 
-process.stdin.on('data', function (chunk) {
-    chunk = chunk.toString().trim();
-    process.stdout.write("chunk = " + chunk + "\n");
+process.stdout.write("Hello\n");
 
-    if(chunk === "t") {
-        print("Taking off!");
-        client.takeoff();
-    }
-    else if(chunk === "u") {
-        print("Landing...");
-        client.land();
-    }
-    else if(chunk === "w") {
-        print("Ascending...");
-        client.up(.3);
-    }
-    else if(chunk === "s") {
-        print("Descending...");
-        client.down(.3);
-    }
-    else if(chunk === "a") {
-        print("Rotating Left...");
-        client.counterClockwise(.3);
-    }
-    else if(chunk === "d") {
-        print("Rotating Right...");
-        client.clockwise(.3);
-    }
-    else if(chunk === "i") {
-        print("Move Forward...");
-        client.front(.3);
-    }
-    else if(chunk === "k") {
-        print("Move Backward...");
-        client.back(.3);
-    }
-    else if(chunk === "j") {
-        print("Move Left...");
-        client.left(.3);
-    }
-    else if(chunk === "l") {
-        print("Move Right...");
-        client.right(.3);
-    }
-    else if(chunk == 'h') {
-        print("Hovering");
-        client.stop();
-    }
-    else if(chunk == 'q') {
-        print("Quitting");
-        client.land();
-        process.exit();
-    }
-    process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
+//listening for key presses...
+process.stdin.on('keypress', function (ch, key) {
+if(key){
+  //print(key.name);
+  switch(key.name){
+    case 't': 
+      print("Taking off!");
+      client.takeoff();
+      process.stdin.setRawMode(true);
+      break;
+    case 'space':
+      print("Hovering");
+      client.stop();
+      break;
+    case 'm':
+      print("Landing...");
+      client.stop();
+      client.land();
+      process.stdin.setRawMode(false);
+      break;
+    case 'w':
+      print("Up");
+      client.up(.3);
+      break;
+    case 's':
+      print("Down");
+      client.down(.3);
+      break;
+    case 'a':
+      print("Rotate Left");
+      client.counterClockwise(.3);
+      break;
+    case 'd':
+      print("Rotate Right");
+      client.clockwise(.3);
+      break;
+    case 'i':
+      print("Forward");
+      client.front(.3);
+      break;
+    case 'k':
+      print("Backward");
+      client.back(.3);
+      break;
+    case 'j':
+      print("left");
+      client.left(.3);
+      break;
+    case 'l':
+      print("Right");
+      client.right(.3);
+      break;
+    case 'q':
+      print("quitting");
+      client.stop();
+      client.land(function(){ process.exit() });
+      break;
+  }
+}
 });
 
 /*var pngStream = client.getPngStream();
