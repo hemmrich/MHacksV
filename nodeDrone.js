@@ -3,6 +3,7 @@ var sleep = require('sleep');
 var prompt = require('prompt');
 var http = require('http');
 var fs = require('fs');
+var cv = require('opencv');
 
 prompt.start();
 
@@ -44,12 +45,17 @@ process.stdin.on('data', function (chunk) {
 var pngStream = client.getPngStream();
 var lastPng;
 
+var imgCounter = 0;
+
 pngStream
     .on('error', console.log)
     .on('data', function(pngBuffer) {
         lastPng = pngBuffer;
 
-        fs.writeFile("/Users/Max/Desktop/GitHub/MHacksV/tmppic.png", lastPng, function(err) {
+        filename = "/Users/Max/Desktop/GitHub/MHacksV/tmppic_" + imgCounter + ".png";
+        //imgCounter = imgCounter + 1;
+
+        fs.writeFile(filename, lastPng, function(err) {
             if(err) {
                 console.log(err);
             } else {
