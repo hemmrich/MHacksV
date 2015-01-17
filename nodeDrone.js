@@ -45,6 +45,18 @@ function executeFacialRecognition(filename) {
 var client  = arDrone.createClient();
 client.disableEmergency();
 
+//FLAGS
+var setHeight = false;
+var viewLog = false;
+
+//DESIRED VALUES
+var desiredHeight = 1.6;
+
+/*prompt.get(['DesiredHeight'], function(err, result){
+  desiredHeight = result.DesiredHeight;
+  console.log('Desired Height: ' + desiredHeight + '\n');
+});*/
+
 //Allow user to control drone's flight
 process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 process.stdin.on('data', function (chunk) {
@@ -54,6 +66,10 @@ process.stdin.on('data', function (chunk) {
     if(chunk === "t") {
         print("Taking off!");
         client.takeoff();
+        client.takeoff(function(){
+          print("I Took Off");
+          setHeight = true;
+        });
     }
     else if(chunk === "l") {
         print("Landing...");
@@ -101,7 +117,34 @@ process.stdin.on('data', function (chunk) {
         print("Down");
         client.down(0.3);
     }
+    else if(chunk == "log") {
+      print("Toggling log");
+      if(viewLog) viewLog = false;
+      else viewLog = true;
+    }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
+});
+
+client.on('navdata', function(data){
+  if(viewLog) console.log(data);
+
+  //Hovering at desired height
+  if(setHeight){
+    if(data.demo){
+      var currentHeight = data.demo.altitude;
+      if(currentHeight < desiredHeight - 0.05){
+        print("Going Up: " + currentHeight);
+        client.up(.2);
+      }else if(currentHeigh > desiredHeight + 0.05){
+        print("Going Down: " + currentHeight);
+        client.down(.2);
+      }else{
+        print("Reached Desired Height");
+        client.stop();
+      }
+    }
+  }
+
 });
 
 
