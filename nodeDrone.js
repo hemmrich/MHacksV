@@ -1,15 +1,16 @@
 var arDrone = require('ar-drone');
 var sleep = require('sleep');
-var prompt = require('prompt');
 var http = require('http');
 var fs = require('fs');
 var cv = require('opencv');
 var child = require('child_process');
 var path = require('path');
+var prompt = require('prompt');
 
 var directory = "/Users/Max/Desktop/GitHub/MHacksV"; //get this programmatically later
 var result = "";
 
+prompt.start();
 
 function print(string) {
     process.stdout.write(string.toString());
@@ -43,10 +44,20 @@ function executeFacialRecognition(filename) {
 }
 
 // Start getting user input to control drone
-prompt.start();
 
 var client  = arDrone.createClient();
 client.disableEmergency();
+
+//FLAGS
+var setHeight = false;
+
+//DESIRED VALUES
+var desiredHeight = 1.6;
+
+/*prompt.get(['DesiredHeight'], function(err, result){
+  desiredHeight = result.DesiredHeight;
+  console.log('Desired Height: ' + desiredHeight + '\n');
+});*/
 
 //Allow user to control drone's flight
 process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
@@ -57,6 +68,7 @@ process.stdin.on('data', function (chunk) {
     if(chunk === "t") {
         print("Taking off!");
         client.takeoff();
+        setHeight = true;
     }
     else if(chunk === "l") {
         print("Landing...");
@@ -71,6 +83,9 @@ process.stdin.on('data', function (chunk) {
         client.land( function() { process.exit() });
         client.land( function() { process.exit() });
         client.land( function() { process.exit() });
+    }
+    else if(chunk == 'z'){
+        process.exit();
     }
     else if(chunk == "left") {
         print("Left");
@@ -107,6 +122,27 @@ process.stdin.on('data', function (chunk) {
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
 
+client.on('navdata', function(data){
+  //console.log(data);
+
+  //Hovering at desired height
+  if(setHeight){
+    if(data.demo){
+      var currentHeight = data.demo.altitude;
+      if(currentHeight < desiredHeight - 0.05){
+        print("Going Up: " + currentHeight);
+        client.up(.2);
+      }else if(currentHeigh > desiredHeight + 0.05){
+        print("Going Down: " + currentHeight);
+        client.down(.2);
+      }else{
+        print("Reached Desired Height");
+        client.stop();
+      }
+    }
+  }
+
+});
 
 //Save images from AR Drone's front facing camera
 var pngStream = client.getPngStream();
