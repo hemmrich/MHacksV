@@ -16,29 +16,6 @@ function print(string) {
     process.stdout.write("\n");
 }
 
-function deleteOldPictures() {
-    var dir = directory + "/dronepics/";
-    var counter = 0;
-    var file = dir + "tmppic_" + counter + ".png";
-
-    try {
-        while(true) {
-            file = dir + "tmppic_" + counter + ".png";
-            print("File " + file);
-            fs.unlinkSync(file, function(err) {
-                if(err)
-                    print(err);
-                else
-                    print("Successfully deleted: " + file);
-                counter++;
-            });
-        }
-    } catch (err) {
-        //print("Couldn't delete " + file);
-        //print(err);
-    }
-}
-
 function executeFacialRecognition(filename) {
 
     var cmd = path.join(__dirname, "faceRecognizer");
@@ -63,9 +40,6 @@ function executeFacialRecognition(filename) {
 
     });    
 }
-
-//clean up pictures from previous run
-deleteOldPictures();
 
 // Start getting user input to control drone
 prompt.start();
@@ -93,8 +67,41 @@ process.stdin.on('data', function (chunk) {
     }
     else if(chunk == 'q') {
         print("Quitting");
-        client.land();
-        process.exit();
+        client.land( function() { process.exit() });
+        client.land( function() { process.exit() });
+        client.land( function() { process.exit() });
+    }
+    else if(chunk == "left") {
+        print("Left");
+        client.left(0.5);
+    }
+    else if(chunk == "right") {
+        print("Right");
+        client.right(0.5);
+    }
+    else if(chunk == "rotl") {
+        print("Rotate left");
+        client.counterClockwise(0.5);
+    }
+    else if(chunk == "rotr") {
+        print("Rotate right");
+        client.clockwise(0.5);
+    }
+    else if(chunk == "forward") {
+        print("Forward");
+        client.front(0.5);
+    }
+    else if(chunk == "backward") {
+        print("Backward");
+        client.back(0.5);
+    }
+    else if(chunk == "up") {
+        print("Up");
+        client.up(0.5);
+    }
+    else if(chunk == "down") {
+        print("Down");
+        client.down(0.5);
     }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
@@ -119,32 +126,8 @@ var detectFaces = function() {
         processingImage = true;
         print("Processing new image");
 
-
-        /*cv.readImage("jason.png", function(err, im) {
-            if(err) 
-                throw err;
-            if(im.width() < 1 || im.height < 1)
-                throw new Error("Incorrect image size");
-
-            im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
-                if(err)
-                    throw err;
-
-                for(var i = 0; i < faces.length; i++) {
-                    var face = faces[i];
-                    im.ellipse(face.x + face.width / 2, face.y + face.height / 2, face.width / 2, face.height / 2);
-                    filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
-                    im.save(filename);
-                    print("Saved image " + imgCounter);
-                    imgCounter = imgCounter + 1;
-                }
-            });
-        });*/
-
-
-
-
         cv.readImage(lastPng, function(err, im) {
+
             var opts = {};
             im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
                 var face, biggestFace;
@@ -159,6 +142,10 @@ var detectFaces = function() {
 
                 if(biggestFace) {
                     face = biggestFace;
+
+                    var window = new cv.NamedWindow("Preview", "400x400");
+                    window.show(face);
+
                     print(face.x + face.y + face.height + face.width + im.height() + im.width());
 
                     face.centerX = face.x + face.width * 0.5;
