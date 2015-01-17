@@ -21,7 +21,7 @@ function print(string) {
 
 keypress(process.stdin);
 
-process.stdout.write("Hello\n");
+print("Press 't' to start. wasd for up/down/ccw/cw ijkl for forward/left/backward/right");
 
 //listening for key presses...
 process.stdin.on('keypress', function (ch, key) {
