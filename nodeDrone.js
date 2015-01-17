@@ -19,20 +19,29 @@ function print(string) {
 function deleteOldPictures() {
     var dir = directory + "/dronepics/";
     var counter = 0;
-    while(fs.exists(dir + "tmppic_" + counter)) {
-        fs.unlink(dir + "tmppic_" + counter, function(err) {
-            if(err) 
-                console.log(err);
-            print("Successfully deleted: " + dir + "tmppic_" + counter);
-            counter++;
-        })
+    var file = dir + "tmppic_" + counter + ".png";
+
+    try {
+        while(true) {
+            file = dir + "tmppic_" + counter + ".png";
+            print("File " + file);
+            fs.unlinkSync(file, function(err) {
+                if(err)
+                    print(err);
+                else
+                    print("Successfully deleted: " + file);
+                counter++;
+            });
+        }
+    } catch (err) {
+        //print("Couldn't delete " + file);
+        //print(err);
     }
 }
 
 function executeFacialRecognition(filename) {
 
     var cmd = path.join(__dirname, "faceRecognizer");
-    inspect(cmd, 'command to spawn');
     var args = [filename];
     var tracker = child.spawn(cmd, args);
 
