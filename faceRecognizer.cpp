@@ -18,7 +18,7 @@ void init() {
     for(int i = 1; i <= 3; i++) {
         stringstream ss; ss << i;
         string pic = DIRECTORY + "training_pics/jason" + ss.str() + "_cropped.png";
-        cout << "i = " << i << ", Training with: " << pic << endl;
+        //cout << "i = " << i << ", Training with: " << pic << endl;
         images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
         labels.push_back(1);
     }
@@ -45,20 +45,22 @@ Mat cropToSize(string filename, int centerX, int centerY, int dimensionX, int di
 
     cout << "img rows: " << img.rows << ", img cols: " << img.cols << endl;
 
+    try {
+        Point topLeft((centerX - dimensionX / 2), (centerY - dimensionY / 2));
+        Point bottomRight((centerX + dimensionX / 2), (centerY + dimensionY / 2));
 
-    Point topLeft((centerX - dimensionX / 2), (centerY - dimensionY / 2));
-    Point bottomRight((centerX + dimensionX / 2), (centerY + dimensionY / 2));
+        Rect faceRekt;
+        faceRekt.x = centerX - dimensionX / 2;
+        faceRekt.y = centerY - dimensionY / 2;
+        faceRekt.width = dimensionX;
+        faceRekt.height = dimensionY;
+        Mat croppedImage;
 
-    Rect faceRekt;
-    faceRekt.x = centerX - dimensionX / 2;
-    faceRekt.y = centerY - dimensionY / 2;
-    faceRekt.width = dimensionX;
-    faceRekt.height = dimensionY;
-    Mat croppedImage;
-
-    croppedImage = img(faceRekt).clone();
-    cout << "cropped rows: " << croppedImage.rows << ", cropped cols: " << croppedImage.cols << endl;
-    return croppedImage;
+        croppedImage = img(faceRekt).clone();
+        cout << "cropped rows: " << croppedImage.rows << ", cropped cols: " << croppedImage.cols << endl;
+        return croppedImage;
+    } catch (Exception e) {     
+    }
 }
 
 
