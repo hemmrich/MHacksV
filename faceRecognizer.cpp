@@ -112,8 +112,9 @@ int main(int argc, char** argv) {
     int centerX = -1, centerY = -1;
 
     if (ss >> centerX && ss2 >> centerY) {
+        cout << "centerX: " << centerX << ", centerY: " << centerY << endl;
         Mat cropped = cropToSize(filename, centerX, centerY, 200, 200); //crop to 200 by 200
-
+        cout << "Done cropping" << endl;
         bool found = foundFace(cropped);
 
     if(found)
@@ -121,8 +122,6 @@ int main(int argc, char** argv) {
     else
         cout << "Nope" << endl;
     }
-
-    
 
     return 0;
 }

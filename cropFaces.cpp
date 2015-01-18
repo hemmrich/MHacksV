@@ -28,6 +28,8 @@ bool rectContainsPoint(const Rect& rect, const Point& point) {
 
 
 void detectAndDisplay(Mat frame) {
+//void detectAndDisplay(const Mat& frame) {
+  //  cout <<"D&D" << endl;
     vector<Rect> faces;
     Mat frame_gray = frame;
     Mat croppedImage;
