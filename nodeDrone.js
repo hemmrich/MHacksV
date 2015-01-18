@@ -279,6 +279,8 @@ client.on('navdata', function(data){
 var pngStream = client.getPngStream();
 var lastPng;
 var imgCounter = 0;
+var tmpCounter = 0;
+var location = "/Users/Max/Desktop/GitHub/MHacksV/tmp/";
 
 pngStream
     .on('error', console.log)
@@ -294,62 +296,52 @@ var detectFaces = function() {
         processingImage = true;
 
         cv.readImage(lastPng, function(err, im) {
-
-            var opts = {scale: 2};
-            im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
-                var face, biggestFace;
-
-                print("Found " + faces.length + " faces");
-
-                for(var i = 0; i < faces.length; i++) {
-                    face = faces[i];
-                    if(!biggestFace || biggestFace.width < face.width)
-                        biggestFace = face;
+            var opts = {scale: 1.1, neighbors: 2};
+            var cascade = cv.FACE_CASCADE;
+            //cascade = "/Users/Max/Desktop/GitHub/MHacksV/node_modules/opencv/data/haarcascade_frontalface_default.xml";
+            cascade = "/Users/Max/Downloads/HS.xml";
+            im.detectObject(cascade, opts, function(err, bodies) {
+                for(var i = 0; i < bodies.length; i++) {
+                    im.ellipse(bodies[i].x + bodies[i].width * 0.5, bodies[i].y + bodies[i].height * 0.5, bodies[i].width / 2, bodies[i].height / 2);
                 }
+                print(face.x + face.y + face.height + face.width + im.height() + im.width());
+                cascade2 = "/Users/Max/Desktop/GitHub/MHacksV/node_modules/opencv/data/haarcascade_frontalface_default.xml";
+                im.detectObject(cascade2, opts, function(err, faces) {
+                    var face, biggestFace;
 
-                if(biggestFace) {
-                    face = biggestFace;
+                    for(var i = 0; i < faces.length; i++) {
+                        face = faces[i];
+                        if(!biggestFace || biggestFace.width < face.width)
+                            biggestFace = face;
+                    }
+                    im.save(location+"tmp"+tmpCounter+".png");
+                    tmpCounter++;
 
-                    print(face.x + face.y + face.height + face.width + im.height() + im.width());
+                    if(biggestFace) {
+                        face = biggestFace;
 
-                    face.centerX = face.x + face.width * 0.5;
-                    face.centerY = face.y + face.height * 0.5;
+                        print(face.x + face.y + face.height + face.width + im.height() + im.width());
 
-                    im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
-                    filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
-                    im.save(filename);
-                    print("Saved image " + filename);
-                    imgCounter++;
+                        face.centerX = face.x + face.width * 0.5;
+                        face.centerY = face.y + face.height * 0.5;
 
-                    executeFacialRecognition(filename, face.centerX, face.centerY);
-                }
+                        im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
+                        filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
+                        im.save(filename);
+                        print("Saved image " + filename);
+                        imgCounter++;
 
-                processingImage = false;
+                        executeFacialRecognition(filename, face.centerX, face.centerY);
+                    }
 
+                    processingImage = false;
+                });             
             });
         });
     }
 }
 
 var faceProcessInterval = setInterval(detectFaces, 500);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

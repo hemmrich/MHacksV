@@ -24,8 +24,8 @@ bool rectContainsPoint(const Rect& rect, const Point& point) {
     return false;
 }
 
-
-void detectAndDisplay(Mat frame) {
+void detectAndDisplay(const Mat& frame) {
+    cout <<"D&D" << endl;
     vector<Rect> faces;
     Mat frame_gray = frame;
     Mat croppedImage;
@@ -42,17 +42,20 @@ void detectAndDisplay(Mat frame) {
         Point face_center(faces[i].x + faces[i].width * 0.5, faces[i].y + faces[i].height * 0.5);
         //ellipse(frame, face_center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);
 
+        cout << "Looking at face " << i << endl;
+
         //Crop image
-        Mat cropped(frame); 
+        Rect faceRekt;
+        faceRekt.x = face_center.x - dimensionX / 2;
+        faceRekt.y = face_center.y - dimensionY / 2;
+        faceRekt.width = dimensionX;
+        faceRekt.height = dimensionY;
+        Mat croppedImage;
 
-        Point topLeft((face_center.x - dimensionX / 2), (face_center.y - dimensionY / 2));
-        Point bottomRight((face_center.x + dimensionX / 2), (face_center.y + dimensionY / 2));
-        Rect ROI(topLeft, bottomRight);
+        croppedImage = frame(faceRekt).clone();
 
-        Mat croppedImage = cropped(ROI);
-
-        //imshow("Preview", croppedImage);
-        //getchar();
+        imshow("Preview", frame);
+        getchar();
 
         //Find eyes in each face to ensure that it's actually a face (and not a soap dispenser -_-)
         Mat faceROI = frame_gray(faces[i]);
@@ -67,22 +70,20 @@ void detectAndDisplay(Mat frame) {
             //circle(frame, eye_center, radius, Scalar(255, 0, 0), 4, 8, 0);
 
             //ROI IS (PROBABLY) AN ACTUAL FACE!!!!!!!!!!!!!!!
-            if(rectContainsPoint(ROI, eye_center)) {
+            if(rectContainsPoint(faceRekt, eye_center)) {
                 filename = filename.substr(0, filename.size() - 4); //remove .png
                 filename += "_cropped.png";
                 imwrite(filename.c_str(), croppedImage);
             }           
         }
     }
-    //imshow("Preview", frame);
-    //getchar();
+    imshow("Preview", frame);
+    getchar();
 }
 
 
 int main(int argc, char** argv) {
     filename = argv[1];
-
-    CvCapture* cap;
     Mat frame;
 
     //Load cascades (using both face and eyes)
