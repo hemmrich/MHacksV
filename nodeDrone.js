@@ -5,10 +5,12 @@ var fs = require('fs');
 var cv = require('opencv');
 var child = require('child_process');
 var path = require('path');
+var prompt = require('prompt');
 
 var directory = "/Users/Max/Desktop/GitHub/MHacksV"; //get this programmatically later
 var result = "";
 
+prompt.start();
 
 function print(string) {
     process.stdout.write(string.toString());
@@ -89,7 +91,6 @@ process.stdin.on('data', function (chunk) {
 
     if(chunk === "t") {
         print("Taking off!");
-        client.takeoff();
         client.takeoff(function(){
           print("I Took Off");
           setHeight = true;
@@ -108,6 +109,9 @@ process.stdin.on('data', function (chunk) {
         client.land( function() { process.exit() });
         client.land( function() { process.exit() });
         client.land( function() { process.exit() });
+    }
+    else if(chunk == 'z'){
+        process.exit();
     }
     else if(chunk == "left") {
         print("Left");
