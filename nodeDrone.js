@@ -15,10 +15,10 @@ function print(string) {
     process.stdout.write("\n");
 }
 
-function executeFacialRecognition(filename) {
+function executeFacialRecognition(filename, face_centerX, face_centerY) {
 
     var cmd = path.join(__dirname, "faceRecognizer");
-    var args = [filename];
+    var args = [filename, face_centerX, face_centerY];
     var tracker = child.spawn(cmd, args);
 
     tracker.stdout.setEncoding('utf8');
@@ -34,10 +34,9 @@ function executeFacialRecognition(filename) {
 
         if(result.indexOf("FOUND!") > -1) {
             print("FOUND FACE!!!!!");
-            client.stop();
-            client.land( function() { process.exit() });
+            //client.stop();
+            //client.land( function() { process.exit() });
         }
-
     });    
 }
 
@@ -210,7 +209,7 @@ var detectFaces = function() {
             im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
                 var face, biggestFace;
 
-                //print("Found " + faces.length + " faces");
+                print("Found " + faces.length + " faces");
 
                 for(var i = 0; i < faces.length; i++) {
                     face = faces[i];
@@ -221,16 +220,10 @@ var detectFaces = function() {
                 if(biggestFace) {
                     face = biggestFace;
 
-                    //var window = new cv.NamedWindow("Preview", "400x400");
-                    //window.show(face);
-
                     print(face.x + face.y + face.height + face.width + im.height() + im.width());
 
                     face.centerX = face.x + face.width * 0.5;
                     face.centerY = face.y + face.height * 0.5;
-
-                    var centerX = im.width() * 0.5;
-                    var centerY = im.width() * 0.5;
 
                     im.ellipse(face.centerX, face.centerY, face.width / 2, face.height / 2);
                     filename = directory + "/dronepics/tmppic_" + imgCounter + ".png";
@@ -238,7 +231,7 @@ var detectFaces = function() {
                     print("Saved image " + filename);
                     imgCounter++;
 
-                    executeFacialRecognition(filename);
+                    executeFacialRecognition(filename, face.centerX, face.centerY);
                 }
 
                 processingImage = false;
@@ -248,7 +241,7 @@ var detectFaces = function() {
     }
 }
 
-var faceProcessInterval = setInterval(detectFaces, 1500);
+var faceProcessInterval = setInterval(detectFaces, 500);
 
 
 
