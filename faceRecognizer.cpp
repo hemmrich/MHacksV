@@ -123,7 +123,7 @@ bool findHat(string filename, int faceX, int faceWidth, int faceY, int faceHeigh
         for(int j = topLeft.y; j <= bottomRight.y; j++) {
             Vec3b bgrPixel = img.at<Vec3b>(Point(i,j));
 
-            if(bgrPixel[0] + bgrPixel[1] + bgrPixel[2] > 650) {
+            if(bgrPixel[0] + bgrPixel[1] + bgrPixel[2] > 725) {
                 whitePixels++;
             }
         }
@@ -131,7 +131,7 @@ bool findHat(string filename, int faceX, int faceWidth, int faceY, int faceHeigh
 
     float percentWhite = (float)whitePixels / (float)numPixels;
     cout << "Percentwhite = " << percentWhite << endl;
-    if(percentWhite > 0.2)
+    if(percentWhite > 0.2 && percentWhite < 0.6)
         return true;
 
     return false;

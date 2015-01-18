@@ -12,6 +12,7 @@ var lastPng;
 var prevCenterX = -1, prevCenterY = -1;
 var faceCentered = false;
 var foundHat = false;
+var lostHatMargin = 3;
 
 
 function print(string) {
@@ -40,11 +41,15 @@ function executeFacialRecognition(filename, facex, facewidth, facey, faceheight)
         if(result.indexOf("FOUND!") > -1) {
             print("FOUND HAT!!!!!");
             foundHat = true;
+            lostHatMargin = 3;
             //client.stop();
             //client.land( function() { process.exit() });
         }
-        else
-            foundHat = false;
+        else {
+            lostHatMargin--;
+            if(lostHatMargin == 0)
+                foundHat = false;
+        }
     });    
 }
 
@@ -66,7 +71,7 @@ var desiredHeight = 1.6;
 function takingOff() {
     print("taking off!");
     client.takeoff(function() {
-        setHeight = true;
+        //setHeight = true;
         flying = true;
     });
 }
@@ -206,6 +211,7 @@ process.stdin.on('data', function (chunk) {
     }
     else if(chunk == "find") {
       print("Finding Fucking Criminals...");
+      setHeight = true;
       findPerson = true;
       takingOff();
     }
@@ -214,6 +220,14 @@ process.stdin.on('data', function (chunk) {
 
 
 client.on('navdata', function(data){
+
+    if(foundHat) {
+        var faceLoc = getFaceLocation();
+        print("FACE IS IN QUADRANT: " + faceLoc);
+    }
+
+
+
   if(viewLog) {
     /*if(data.demo){
       console.log(data.demo.rotation);
@@ -230,7 +244,7 @@ client.on('navdata', function(data){
       var currentHeight = data.demo.altitude;
       if(currentHeight < desiredHeight - 0.05){
         //print("Going Up: " + currentHeight);
-        client.up(.2);
+        client.up(.35);
       }else if(currentHeight > desiredHeight + 0.05){
         //print("Going Down: " + currentHeight);
         client.down(.2);
@@ -262,7 +276,6 @@ client.on('navdata', function(data){
   }
 
   if(targetPerson){
-    print("In targetPerson");
     if(!foundHat)
     {
         client.stop();
@@ -271,59 +284,61 @@ client.on('navdata', function(data){
       client.stop();
     }else{
         var faceLoc = getFaceLocation();
+        var speed = 0.05;
         print("Face is in quadrant: " + faceLoc);
       switch(faceLoc) {
         case 1:
           //client.stop();
-          print("1");
-          client.counterClockwise(.1);
-          client.up(.2);
-          sleep.sleep(200);
+          print("1 - up");
+          client.counterClockwise(speed);
+          client.up(speed);
+
+          //sleep.sleep(200);
           break;
         case 2:
           //client.stop();
-          print("2");
-          client.up(.2);
-          sleep.sleep(200);
+          print("2 - up");
+          client.up(speed);
+          //sleep.sleep(200);
           break;
         case 3:
           //client.stop();
           print("3");
-          client.clockwise(.1);
-          client.up(.2);
-          sleep.sleep(200);
+          client.clockwise(speed);
+          client.up(speed);
+          //sleep.sleep(200);
           break;
         case 4:
           //client.stop();
           print("4");
-          client.clockwise(.1);
-          sleep.sleep(200);
+          client.clockwise(speed);
+          //sleep.sleep(200);
           break;
         case 5:
           //client.stop();
           print("5");
-          client.down(.2);
-          client.clockwise(.1);
-          sleep.sleep(200);
+          client.down(speed);
+          client.clockwise(speed);
+          //sleep.sleep(200);
           break;
         case 6:
           //client.stop();
           print("6");
-          client.down(.2);
-          sleep.sleep(200);
+          client.down(speed);
+          //sleep.sleep(200);
           break;
         case 7:
           //client.stop();
           print("7");
-          client.counterClockwise(.1);
-          client.down(.2);
-          sleep.sleep(200);
+          client.counterClockwise(speed);
+          client.down(speed);
+          //sleep.sleep(200);
           break;
         case 8:
           //client.stop();
           print("8");
-          client.counterClockwise(.1);
-          sleep.sleep(200);
+          client.counterClockwise(speed);
+          //sleep.sleep(200);
           break;
         case 9:
           print("9");
@@ -352,7 +367,7 @@ pngStream
 var processingImage = false;
 var counter = 0;
 var detectFaces = function() {
-    if(!processingImage && lastPng) {
+    if(!processingImage && lastPng && !setHeight) {
         processingImage = true;
 
         cv.readImage(lastPng, function(err, im) {
