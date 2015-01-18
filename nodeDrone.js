@@ -15,10 +15,11 @@ function print(string) {
     process.stdout.write("\n");
 }
 
-function executeFacialRecognition(filename, face_centerX, face_centerY) {
+//function executeFacialRecognition(filename, face_centerX, face_centerY) {
+function executeFacialRecognition(filename, facex, facewidth, facey, faceheight) {
 
     var cmd = path.join(__dirname, "faceRecognizer");
-    var args = [filename, face_centerX, face_centerY];
+    var args = [filename, facex, facewidth, facey, faceheight];
     var tracker = child.spawn(cmd, args);
 
     tracker.stdout.setEncoding('utf8');
@@ -164,8 +165,8 @@ var detectFaces = function() {
                             prevCenterY = face.centerY;
                         } else {
                             if(Math.abs(prevCenterX - face.centerX) < 125 &&
-                               Math.abs(prevCenterY - face.centerY) < 75  && 
-                               flying == true) {
+                               Math.abs(prevCenterY - face.centerY) < 75) { // &&) { 
+                               //flying == true) {
                                 counter++;
 
                                 if(counter >= 3) {
@@ -176,7 +177,8 @@ var detectFaces = function() {
                                     print("SAVED AN IMAGE!!!!!");
                                     imgCounter++;
 
-                                    executeFacialRecognition(filename, face.centerX, face.centerY);
+                                    executeFacialRecognition(filename, face.x, face.width, face.y, face.height);
+                                    //executeFacialRecognition(filename, face.centerX, face.centerY);
                                 }                                
                             }
                             else

@@ -44,8 +44,10 @@ void init() {
         cvtColor(m, m2, CV_BGR2GRAY);
         images.push_back(m2);
         //images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
-        labels.push_back(counter);
-        counter++;
+        if(i < 6)
+            labels.push_back(1);
+        else
+            labels.push_back(2);
     }
 
     fr->train(images, labels); 
@@ -89,13 +91,50 @@ Mat cropToSize(string filename, int centerX, int centerY, int dimensionX, int di
         if(centerY + dimensionY > img.rows)
             centerY = img.rows - dimensionY;
 
-
         Mat croppedImage;
 
         croppedImage = img(faceRekt).clone();
+
+        cout << "croppedImage: w = " << croppedImage.cols << ", h = " << croppedImage.rows << endl;
+
+
         return croppedImage;
     } catch (Exception e) {     
     }
+}
+
+bool findHat(string filename, int faceX, int faceWidth, int faceY, int faceHeight) {
+
+    Mat img = imread(filename, CV_LOAD_IMAGE_COLOR);
+
+
+    int tmpY = faceY - 80;
+    if(tmpY < 0) tmpY = 0;
+
+    Point topLeft((faceX), (tmpY));
+    Point bottomRight((faceX + faceWidth), (faceY));
+
+    cout << "Hat space is a " << bottomRight.x - topLeft.x << " by " << bottomRight.y - topLeft.y << " rectangle." << endl;
+
+    int numPixels = (bottomRight.x - topLeft.x) * (bottomRight.y - topLeft.y);
+    int whitePixels = 0;
+
+    for(int i = topLeft.x; i <= bottomRight.x; i++) {
+        for(int j = topLeft.y; j <= bottomRight.y; j++) {
+            Vec3b bgrPixel = img.at<Vec3b>(Point(i,j));
+
+            if(bgrPixel[0] + bgrPixel[1] + bgrPixel[2] > 650) {
+                whitePixels++;
+            }
+        }
+    }
+
+    float percentWhite = (float)whitePixels / (float)numPixels;
+    cout << "Percentwhite = " << percentWhite << endl;
+    if(percentWhite > 0.2)
+        return true;
+
+    return false;
 }
 
 
@@ -108,13 +147,22 @@ int main(int argc, char** argv) {
 
     istringstream ss(argv[2]);
     istringstream ss2(argv[3]);
+    istringstream ss3(argv[4]);
+    istringstream ss4(argv[5]);
 
-    int centerX = -1, centerY = -1;
+    //int centerX = -1, centerY = -1;
+    int faceX, faceWidth, faceY, faceHeight;
 
-    if (ss >> centerX && ss2 >> centerY) {
-        Mat cropped = cropToSize(filename, centerX, centerY, 200, 200); //crop to 200 by 200
+    //if (ss >> centerX && ss2 >> centerY) {
 
-        bool found = foundFace(cropped);
+    if(ss >> faceX && ss2 >> faceWidth && ss3 >> faceY && ss4 >> faceHeight) {
+
+        bool found = findHat(filename, faceX, faceWidth, faceY, faceHeight);
+
+
+        //Mat cropped = cropToSize(filename, centerX, centerY, 200, 200); //crop to 200 by 200
+
+        //bool found = foundFace(cropped);
 
     if(found)
         cout << "FOUND!" << endl;
