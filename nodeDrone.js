@@ -49,6 +49,8 @@ var setHeight = false;
 var viewLog = false;
 var startRotate = false;
 var stopRotate = false;
+var findPerson = false;
+var targetPerson = false;
 
 //DESIRED VALUES
 var desiredHeight = 1.6;
@@ -65,6 +67,18 @@ function takingOff(){
       print("I Took Off");
       setHeight = true;
     });
+}
+
+function foundFace(){
+  return true;
+}
+
+function getFaceLocation(){
+  return 1;
+}
+
+function faceInCenter(){
+  return true;
 }
 
 //Allow user to control drone's flight
@@ -141,6 +155,11 @@ process.stdin.on('data', function (chunk) {
       print("Scanning for Fucking Criminals...");
       startRotate = true;
     }
+    else if(chunk == "find") {
+      print("Finding Fucking Criminals...");
+      findPerson = true;
+      takeOff();
+    }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
 
@@ -169,16 +188,87 @@ client.on('navdata', function(data){
         print("Reached Desired Height");
         setHeight = false;
         client.stop();
+        if(findPerson) startRotate = true;
       }
     }
   }
 
   if(startRotate){
-    client.clockwise(0.4);
+    client.clockwise(0.2);
+    if(foundFace() && findPerson){
+      client.stop();
+      startRotate = false;
+      targetPerson = true;
+    }
     if(stopRotate){
       client.stop();
       startRotate = false;
       stopRotate = false;
+    }
+  }
+
+  if(targetPerson){
+    if(faceInCenter()){
+      client.stop();
+    }else{
+      switch(getFaceLocation()){
+        case 1:
+          client.stop();
+          print("1");
+          client.counterClockwise(.1);
+          client.up(.2);
+          sleep.sleep(500);
+          break;
+        case 2:
+          client.stop();
+          print("2");
+          client.up(.2);
+          sleep.sleep(500);
+          break;
+        case 3:
+          client.stop();
+          print("3");
+          client.clockwise(.1);
+          client.up(.2);
+          sleep.sleep(500);
+          break;
+        case 4:
+          client.stop();
+          print("4");
+          client.clockwise(.1);
+          sleep.sleep(500);
+          break;
+        case 5:
+          client.stop();
+          print("5");
+          client.down(.2);
+          client.clockwise(.1);
+          sleep.sleep(500);
+          break;
+        case 6:
+          client.stop();
+          print("6");
+          client.down(.2);
+          sleep.sleep(500);
+          break;
+        case 7:
+          client.stop();
+          print("7");
+          client.counterClockwise(.1);
+          client.down(.2);
+          sleep.sleep(500);
+          break;
+        case 8:
+          client.stop();
+          print("8");
+          client.counterClockwise(.1);
+          sleep.sleep(500);
+          break;
+        case 9:
+          print("9");
+          client.stop();
+          break;
+      }
     }
   }
 
