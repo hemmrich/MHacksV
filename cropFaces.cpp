@@ -35,7 +35,7 @@ void detectAndDisplay(Mat frame) {
     int dimensionX = 200; //200x200 image, so +/- 100 px from center
     int dimensionY = 200;
 
-    //cvtColor(frame, frame_gray, CV_BGR2GRAY);
+    cvtColor(frame, frame_gray, CV_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray);
 
     //Detect face
@@ -57,7 +57,10 @@ void detectAndDisplay(Mat frame) {
             faceRekt.x = 0;
         if(face_center.y - dimensionY / 2 < 0)
             faceRekt.y = 0;
-
+        if(faceRekt.x + dimensionX > frame.cols)
+            faceRekt.x = frame.cols - dimensionX;
+        if(faceRekt.y + dimensionY > frame.rows)
+            faceRekt.y = frame.rows - dimensionY;
 
         Mat croppedImage;
 
@@ -115,7 +118,7 @@ int main(int argc, char** argv) {
 
 
     //Open image and apply classifiers
-    frame = imread(filename, 0);
+    frame = imread(filename, -1);
     if(!frame.empty())
         detectAndDisplay(frame);
     else

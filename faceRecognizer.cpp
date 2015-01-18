@@ -27,14 +27,21 @@ void init() {
     for(int i = 1; i <= 4; i++) {
         stringstream ss; ss << i;
         string pic = DIRECTORY + "training_pics/yes/jason" + ss.str() + "_cropped.png";
+        cout << "Loading Jason pic " << pic << endl;
         images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
         labels.push_back(1);
     }
 
-    for(int i = 1; i <= 13; i++) {
-        stringstram ss; ss << i;
+    for(int i = 1; i <= 11; i++) {
+        stringstream ss; ss << i;
         string pic = DIRECTORY + "training_pics/no/no" + ss.str() + ".png";
-        images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
+        cout << "Loading non pic " << pic << endl;
+
+        Mat m = imread(pic, 1);
+        Mat m2;
+        cvtColor(m, m2, CV_BGR2GRAY);
+        images.push_back(m2);
+        //images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
         labels.push_back(0);
     }
 

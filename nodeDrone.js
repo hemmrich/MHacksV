@@ -205,7 +205,8 @@ var detectFaces = function() {
     }
 }
 
-var faceProcessInterval = setInterval(detectFaces, 500);
+var faceProcessInterval = setInterval(detectFaces, 250);
+print("Starting face detection...");
 
 
 
