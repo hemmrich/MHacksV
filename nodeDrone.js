@@ -11,6 +11,7 @@ var result = "";
 var lastPng;
 var prevCenterX = -1, prevCenterY = -1;
 var faceCentered = false;
+var foundHat = false;
 
 
 function print(string) {
@@ -37,10 +38,13 @@ function executeFacialRecognition(filename, facex, facewidth, facey, faceheight)
         print(result);
 
         if(result.indexOf("FOUND!") > -1) {
-            print("FOUND FACE!!!!!");
+            print("FOUND HAT!!!!!");
+            foundHat = true;
             //client.stop();
             //client.land( function() { process.exit() });
         }
+        else
+            foundHat = false;
     });    
 }
 
@@ -68,7 +72,7 @@ function takingOff() {
 }
 
 function foundFace() {
-    return true;
+    return foundHat;
 }
 
 function getFaceLocation() {
@@ -78,8 +82,8 @@ function getFaceLocation() {
         var imgWidth = 640;
         var imgHeight = 360;
 
-        int colSection = -1;
-        int rowSection = -1;
+        var colSection = -1;
+        var rowSection = -1;
 
         //left column
         if(prevCenterX >= 0 && prevCenterX < 210) {
@@ -203,7 +207,7 @@ process.stdin.on('data', function (chunk) {
     else if(chunk == "find") {
       print("Finding Fucking Criminals...");
       findPerson = true;
-      takeOff();
+      takingOff();
     }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
@@ -211,13 +215,13 @@ process.stdin.on('data', function (chunk) {
 
 client.on('navdata', function(data){
   if(viewLog) {
-    if(data.demo){
+    /*if(data.demo){
       console.log(data.demo.rotation);
       console.log('frontBackDegrees: ' + data.demo.frontBackDegrees);
       console.log('leftRightDegrees: ' + data.demo.leftRightDegrees);
       console.log('clockwiseDegrees: ' + data.demo.clockwiseDegrees);
-    }
-    //console.log(data);
+    }*/
+    console.log(data);
   }
 
   //Hovering at desired height
@@ -225,10 +229,10 @@ client.on('navdata', function(data){
     if(data.demo){
       var currentHeight = data.demo.altitude;
       if(currentHeight < desiredHeight - 0.05){
-        print("Going Up: " + currentHeight);
+        //print("Going Up: " + currentHeight);
         client.up(.2);
       }else if(currentHeight > desiredHeight + 0.05){
-        print("Going Down: " + currentHeight);
+        //print("Going Down: " + currentHeight);
         client.down(.2);
       }else{
         print("Reached Desired Height");
@@ -240,7 +244,11 @@ client.on('navdata', function(data){
   }
 
   if(startRotate){
-    client.clockwise(0.2);
+
+    if(foundHat)
+        targetPerson = true;
+
+    /*client.clockwise(0.2);
     if(foundFace() && findPerson){
       client.stop();
       startRotate = false;
@@ -250,65 +258,72 @@ client.on('navdata', function(data){
       client.stop();
       startRotate = false;
       stopRotate = false;
-    }
+    }*/
   }
 
   if(targetPerson){
-    if(faceInCenter()){
+    print("In targetPerson");
+    if(!foundHat)
+    {
+        client.stop();
+    }
+    else if(faceInCenter()){
       client.stop();
     }else{
-      switch(getFaceLocation()){
+        var faceLoc = getFaceLocation();
+        print("Face is in quadrant: " + faceLoc);
+      switch(faceLoc) {
         case 1:
-          client.stop();
+          //client.stop();
           print("1");
           client.counterClockwise(.1);
           client.up(.2);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 2:
-          client.stop();
+          //client.stop();
           print("2");
           client.up(.2);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 3:
-          client.stop();
+          //client.stop();
           print("3");
           client.clockwise(.1);
           client.up(.2);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 4:
-          client.stop();
+          //client.stop();
           print("4");
           client.clockwise(.1);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 5:
-          client.stop();
+          //client.stop();
           print("5");
           client.down(.2);
           client.clockwise(.1);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 6:
-          client.stop();
+          //client.stop();
           print("6");
           client.down(.2);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 7:
-          client.stop();
+          //client.stop();
           print("7");
           client.counterClockwise(.1);
           client.down(.2);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 8:
-          client.stop();
+          //client.stop();
           print("8");
           client.counterClockwise(.1);
-          sleep.sleep(500);
+          sleep.sleep(200);
           break;
         case 9:
           print("9");

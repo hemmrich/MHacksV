@@ -114,7 +114,7 @@ bool findHat(string filename, int faceX, int faceWidth, int faceY, int faceHeigh
     Point topLeft((faceX), (tmpY));
     Point bottomRight((faceX + faceWidth), (faceY));
 
-    cout << "Hat space is a " << bottomRight.x - topLeft.x << " by " << bottomRight.y - topLeft.y << " rectangle." << endl;
+    //cout << "Hat space is a " << bottomRight.x - topLeft.x << " by " << bottomRight.y - topLeft.y << " rectangle." << endl;
 
     int numPixels = (bottomRight.x - topLeft.x) * (bottomRight.y - topLeft.y);
     int whitePixels = 0;
@@ -141,7 +141,7 @@ bool findHat(string filename, int faceX, int faceWidth, int faceY, int faceHeigh
 
 int main(int argc, char** argv) {
 
-    init();
+    //init();
 
     string filename(argv[1]);
 
