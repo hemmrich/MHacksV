@@ -15,9 +15,10 @@ void init() {
     vector<int> labels;
 
 
-    for(int i = 1; i <= 1; i++) {
+    for(int i = 1; i <= 3; i++) {
         stringstream ss; ss << i;
         string pic = DIRECTORY + "training_pics/jason" + ss.str() + "_cropped.png";
+        cout << "i = " << i << ", Training with: " << pic << endl;
         images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
         labels.push_back(1);
     }
@@ -40,7 +41,6 @@ bool foundFace(const Mat& img) {
 }
 
 Mat cropToSize(string filename, int centerX, int centerY, int dimensionX, int dimensionY) {
-    cout << "filename: " << filename << endl;
     Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
 
     cout << "img rows: " << img.rows << ", img cols: " << img.cols << endl;
@@ -74,13 +74,8 @@ int main(int argc, char** argv) {
 
     int centerX = -1, centerY = -1;
 
-    cout << "argv[2] = " << argv[2] << endl;
-    cout << "argv[3] = " << argv[3] << endl;
-
     if (ss >> centerX && ss2 >> centerY) {
-        cout << "centerX: " << centerX << ", centerY: " << centerY << endl;
         Mat cropped = cropToSize(filename, centerX, centerY, 200, 200); //crop to 200 by 200
-        cout << "Done cropping" << endl;
 
         bool found = foundFace(cropped);
 
