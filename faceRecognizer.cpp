@@ -6,24 +6,40 @@
 using namespace cv;
 using namespace std;
 const string DIRECTORY = "/Users/Max/Desktop/GitHub/MHacksV/";
+const string RECOGNIZER = DIRECTORY + "createEigenFaceRecognizer.xml";
 
 Ptr<FaceRecognizer> fr;
 
 void init() {
     fr = createEigenFaceRecognizer();
+
+    //check if a save file exists
+    if(FILE *file = fopen(RECOGNIZER.c_str(), "r")) {
+        fclose(file);
+        fr->load(RECOGNIZER);
+        return;
+    }
+
     vector<Mat> images;
     vector<int> labels;
 
 
-    for(int i = 1; i <= 3; i++) {
+    for(int i = 1; i <= 4; i++) {
         stringstream ss; ss << i;
-        string pic = DIRECTORY + "training_pics/jason" + ss.str() + "_cropped.png";
-        //cout << "i = " << i << ", Training with: " << pic << endl;
+        string pic = DIRECTORY + "training_pics/yes/jason" + ss.str() + "_cropped.png";
         images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
         labels.push_back(1);
     }
 
+    for(int i = 1; i <= 13; i++) {
+        stringstram ss; ss << i;
+        string pic = DIRECTORY + "training_pics/no/no" + ss.str() + ".png";
+        images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
+        labels.push_back(0);
+    }
+
     fr->train(images, labels); 
+    fr->save(RECOGNIZER);
 }
 
 bool foundFace(const Mat& img) {

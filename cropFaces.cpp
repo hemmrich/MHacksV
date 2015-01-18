@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
+#include <cstring>
 
 using namespace std;
 using namespace cv;
@@ -15,6 +16,7 @@ CascadeClassifier eyes_cascade;
 string window_name = "Capture - Face detection";
 string filename = "";
 RNG rng(12345);
+bool force = false;
 
 bool rectContainsPoint(const Rect& rect, const Point& point) {
 
@@ -25,8 +27,7 @@ bool rectContainsPoint(const Rect& rect, const Point& point) {
 }
 
 
-void detectAndDisplay(const Mat& frame) {
-    cout <<"D&D" << endl;
+void detectAndDisplay(Mat frame) {
     vector<Rect> faces;
     Mat frame_gray = frame;
     Mat croppedImage;
@@ -36,13 +37,12 @@ void detectAndDisplay(const Mat& frame) {
 
     //cvtColor(frame, frame_gray, CV_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray);
-    cout << "Here" << endl;
 
     //Detect face
-    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30,30));
+    face_cascade.detectMultiScale(frame_gray, faces, 2, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(10,10));
     for(int i = 0; i < faces.size(); i++) {
         Point face_center(faces[i].x + faces[i].width * 0.5, faces[i].y + faces[i].height * 0.5);
-        //ellipse(frame, face_center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);
+        //cv::ellipse(frame, face_center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);
 
         cout << "Looking at face " << i << endl;
 
@@ -52,18 +52,25 @@ void detectAndDisplay(const Mat& frame) {
         faceRekt.y = face_center.y - dimensionY / 2;
         faceRekt.width = dimensionX;
         faceRekt.height = dimensionY;
+
+        if(face_center.x - dimensionX / 2 < 0)
+            faceRekt.x = 0;
+        if(face_center.y - dimensionY / 2 < 0)
+            faceRekt.y = 0;
+
+
         Mat croppedImage;
 
         croppedImage = frame(faceRekt).clone();
 
-        imshow("Preview", frame);
+        imshow("Preview", croppedImage);
         getchar();
 
         //Find eyes in each face to ensure that it's actually a face (and not a soap dispenser -_-)
         Mat faceROI = frame_gray(faces[i]);
         vector<Rect> eyes;
 
-        eyes_cascade.detectMultiScale(faceROI, eyes, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+        eyes_cascade.detectMultiScale(faceROI, eyes, 1.5, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(2, 2));
         for(int j = 0; j < eyes.size(); j++) {
             Point eye_center(faces[i].x + eyes[j].x + eyes[j].width * 0.5,
                          faces[i].y + eyes[j].y + eyes[j].height * 0.5);
@@ -76,16 +83,27 @@ void detectAndDisplay(const Mat& frame) {
                 filename = filename.substr(0, filename.size() - 4); //remove .png
                 filename += "_cropped.png";
                 imwrite(filename.c_str(), croppedImage);
+                cout << "Made image " + filename << endl;
             }           
         }
+        if(eyes.size() == 0 && force) {
+            filename = filename.substr(0, filename.size() - 4); //remove .png
+            filename += "_cropped.png";
+            imwrite(filename.c_str(), croppedImage);
+            cout << "Made image " + filename << endl;
+        }
     }
-    imshow("Preview", frame);
-    getchar();
+    //imshow("Preview", frame);
+    //getchar();
 }
 
 
 int main(int argc, char** argv) {
     filename = argv[1];
+
+    if(argc == 3)
+        if(!strcmp("yes", argv[2]))
+            force = true;
 
     Mat frame;
 
