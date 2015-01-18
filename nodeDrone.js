@@ -48,6 +48,8 @@ client.disableEmergency();
 //FLAGS
 var setHeight = false;
 var viewLog = false;
+var startRotate = false;
+var stopRotate = false;
 
 //DESIRED VALUES
 var desiredHeight = 1.6;
@@ -56,6 +58,15 @@ var desiredHeight = 1.6;
   desiredHeight = result.DesiredHeight;
   console.log('Desired Height: ' + desiredHeight + '\n');
 });*/
+
+
+function takingOff(){
+    print("Taking off!");
+    client.takeoff(function(){
+      print("I Took Off");
+      setHeight = true;
+    });
+}
 
 //Allow user to control drone's flight
 process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
@@ -95,11 +106,11 @@ process.stdin.on('data', function (chunk) {
     }
     else if(chunk == "rotl") {
         print("Rotate left");
-        client.counterClockwise(0.5);
+        client.counterClockwise(0.6);
     }
     else if(chunk == "rotr") {
         print("Rotate right");
-        client.clockwise(0.5);
+        client.clockwise(0.6);
     }
     else if(chunk == "forward") {
         print("Forward");
@@ -122,11 +133,28 @@ process.stdin.on('data', function (chunk) {
       if(viewLog) viewLog = false;
       else viewLog = true;
     }
+    else if(chunk == "height") {
+      print("Adjusting height");
+      if(setHeight) setHeight = false;
+      else setHeight = true;
+    }
+    else if(chunk == "scan") {
+      print("Scanning for Fucking Criminals...");
+      startRotate = true;
+    }
     process.stdout.write("Enter command for AR Drone (t, l, h, or q): ");
 });
 
 client.on('navdata', function(data){
-  if(viewLog) console.log(data);
+  if(viewLog) {
+    if(data.demo){
+      console.log(data.demo.rotation);
+      console.log('frontBackDegrees: ' + data.demo.frontBackDegrees);
+      console.log('leftRightDegrees: ' + data.demo.leftRightDegrees);
+      console.log('clockwiseDegrees: ' + data.demo.clockwiseDegrees);
+    }
+    //console.log(data);
+  }
 
   //Hovering at desired height
   if(setHeight){
@@ -135,13 +163,23 @@ client.on('navdata', function(data){
       if(currentHeight < desiredHeight - 0.05){
         print("Going Up: " + currentHeight);
         client.up(.2);
-      }else if(currentHeigh > desiredHeight + 0.05){
+      }else if(currentHeight > desiredHeight + 0.05){
         print("Going Down: " + currentHeight);
         client.down(.2);
       }else{
         print("Reached Desired Height");
+        setHeight = false;
         client.stop();
       }
+    }
+  }
+
+  if(startRotate){
+    client.clockwise(0.4);
+    if(stopRotate){
+      client.stop();
+      startRotate = false;
+      stopRotate = false;
     }
   }
 
