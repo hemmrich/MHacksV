@@ -38,8 +38,11 @@ void detectAndDisplay(Mat frame) {
     cvtColor(frame, frame_gray, CV_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray);
 
+    imshow("Preview", frame_gray);
+    getchar();
+
     //Detect face
-    face_cascade.detectMultiScale(frame_gray, faces, 2, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(10,10));
+    face_cascade.detectMultiScale(frame_gray, faces, 2, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(25,25));
     for(int i = 0; i < faces.size(); i++) {
         Point face_center(faces[i].x + faces[i].width * 0.5, faces[i].y + faces[i].height * 0.5);
         //cv::ellipse(frame, face_center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);
@@ -96,8 +99,6 @@ void detectAndDisplay(Mat frame) {
             cout << "Made image " + filename << endl;
         }
     }
-    //imshow("Preview", frame);
-    //getchar();
 }
 
 
@@ -118,11 +119,15 @@ int main(int argc, char** argv) {
 
 
     //Open image and apply classifiers
-    frame = imread(filename, -1);
-    if(!frame.empty())
-        detectAndDisplay(frame);
-    else
-        cout << "Frame empty!!" << endl;        
+    try {
+        frame = imread(filename, -1);
+        if(!frame.empty())
+            detectAndDisplay(frame);
+        else
+            cout << "Frame empty!!" << endl;  
+    } catch (Exception e) {
+        cout << "defectAndDisplay() crash" << endl;
+    }      
 
     return 0;
 }

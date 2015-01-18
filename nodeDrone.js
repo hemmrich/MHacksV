@@ -163,8 +163,8 @@ var detectFaces = function() {
                             prevCenterX = face.centerX;
                             prevCenterY = face.centerY;
                         } else {
-                            if(Math.abs(prevCenterX - face.centerX) < 100 &&
-                               Math.abs(prevCenterY - face.centerY) < 60  && 
+                            if(Math.abs(prevCenterX - face.centerX) < 125 &&
+                               Math.abs(prevCenterY - face.centerY) < 75  && 
                                flying == true) {
                                 counter++;
 

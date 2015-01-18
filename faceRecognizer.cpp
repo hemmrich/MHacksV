@@ -17,19 +17,21 @@ void init() {
     if(FILE *file = fopen(RECOGNIZER.c_str(), "r")) {
         fclose(file);
         fr->load(RECOGNIZER);
+        cout << "Loaded Eigen Face Recognizer from file!" << endl;
         return;
     }
 
     vector<Mat> images;
     vector<int> labels;
+    int counter = 1;
 
 
-    for(int i = 1; i <= 4; i++) {
+    for(int i = 1; i <= 7; i++) {
         stringstream ss; ss << i;
         string pic = DIRECTORY + "training_pics/yes/jason" + ss.str() + "_cropped.png";
         cout << "Loading Jason pic " << pic << endl;
         images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
-        labels.push_back(1);
+        labels.push_back(0);
     }
 
     for(int i = 1; i <= 11; i++) {
@@ -42,7 +44,8 @@ void init() {
         cvtColor(m, m2, CV_BGR2GRAY);
         images.push_back(m2);
         //images.push_back(imread(pic, CV_LOAD_IMAGE_GRAYSCALE));
-        labels.push_back(0);
+        labels.push_back(counter);
+        counter++;
     }
 
     fr->train(images, labels); 
@@ -53,20 +56,18 @@ bool foundFace(const Mat& img) {
     //Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
     int prediction = -1;
     double confidence = 0.0;
-    imshow("Preview", img);
+    //imshow("Preview", img);
 
     fr->predict(img, prediction, confidence);
 
     cout << "prediction: " << prediction << ", confidence: " << confidence << endl;
 
-    if(prediction == 1) // && confidence > 50.0)
+    if(prediction == 0) // && confidence > 50.0)
         return true;
 }
 
 Mat cropToSize(string filename, int centerX, int centerY, int dimensionX, int dimensionY) {
     Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
-
-    cout << "img rows: " << img.rows << ", img cols: " << img.cols << endl;
 
     try {
         Point topLeft((centerX - dimensionX / 2), (centerY - dimensionY / 2));
@@ -77,10 +78,21 @@ Mat cropToSize(string filename, int centerX, int centerY, int dimensionX, int di
         faceRekt.y = centerY - dimensionY / 2;
         faceRekt.width = dimensionX;
         faceRekt.height = dimensionY;
+
+
+        if(centerX - dimensionX / 2 < 0)
+            centerX = 0;
+        if(centerY - dimensionY / 2 < 0)
+            centerY = 0;
+        if(centerX + dimensionX > img.cols)
+            centerX = img.cols - dimensionX;
+        if(centerY + dimensionY > img.rows)
+            centerY = img.rows - dimensionY;
+
+
         Mat croppedImage;
 
         croppedImage = img(faceRekt).clone();
-        cout << "cropped rows: " << croppedImage.rows << ", cropped cols: " << croppedImage.cols << endl;
         return croppedImage;
     } catch (Exception e) {     
     }
